@@ -22,11 +22,11 @@ def readDataService(page, page_size):
         session = connectDb("poc_database")
         offset = (page - 1) * page_size
         query = "SELECT * FROM user_model;"
-        statement = SimpleStatement(query, fetch_size=100)
+        statement = SimpleStatement(query, fetch_size=10)
         results = session.execute(statement)
         # save page state
         page_state = results.paging_state
-
+        print(page_state)
         for data in results:
             print(data.id)
             # process_data_here(data)

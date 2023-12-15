@@ -7,8 +7,6 @@ from cassandra.query import SimpleStatement
 def createUserService(user):
     session = connectDb("poc_database")
     try:
-        # existingUserEmail = UserModel.get_user_by_email(email_id=user.email_id);
-        # print(existingUserEmail.all())
         person = UserModel.create(name=user.name, age=user.age, gender=user.gender,
                                   email_id=user.email_id, password=user.password, mobileNo=user.mobileNo)
 
@@ -17,20 +15,25 @@ def createUserService(user):
         print(LookupError)
         return {"status": False, "data": [], "message": "Error in inserting"}
 
-def readDataService(page, page_size):
+
+def readDataService(page, page_size, token=''):
     try:
         session = connectDb("poc_database")
-        offset = (page - 1) * page_size
-        query = "SELECT * FROM user_model;"
+        if token:
+            query = "SELECT name, age, token(id) as rowId, gender, email_id   FROM user_model where token(id) > {} limit {};".format(
+                token, page_size)
+        else:
+            query = "SELECT name, age, token(id) as rowId, gender, email_id FROM user_model limit {};".format(
+                page_size)
         statement = SimpleStatement(query, fetch_size=10)
         results = session.execute(statement)
-        # save page state
-        page_state = results.paging_state
-        print(page_state)
+        responseObj = []
         for data in results:
-            print(data.id)
-            # process_data_here(data)
-        # print(array)
+            # print('Name: {} , Row ID: {}'.format(data.name, data.rowid))
+            responseObj.append({"name": data.name, "rowId": data.rowid, "age": data.age,
+                               "gender": data.gender, "email_id": data.email_id})
+        print(responseObj)
+        return responseObj
     except LookupError:
         print(LookupError)
         return {"status": False, "data": [], "message": "Error in inserting"}

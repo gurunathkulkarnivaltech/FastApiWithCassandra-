@@ -23,7 +23,6 @@ async def create_User(user: UserSchema):
 
 DEFAULT_PAGE_SIZE = 10
 @router.get("/user/", response_model=None)
-async def getUser(page: int = Query(1, ge=1), page_size: int = Query(DEFAULT_PAGE_SIZE, le=100)):
-    response = readDataService(page, page_size);
+async def getUser(page: int = Query(1, ge=1), page_size: int = Query(DEFAULT_PAGE_SIZE, le=100), token: int = Query('')):
+    response = readDataService(page, page_size, token);
     return sendResponse(API_SUCCESS_MESSAGE, response,{} ,True, SUCCESS_STATUS_CODES["API_SUCCESS_STATUS_CODE"])
-    
